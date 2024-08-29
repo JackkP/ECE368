@@ -2,19 +2,15 @@
 
 WARNING = -Wall -Wshadow --pedantic
 ERROR = -Wvla -Werror
-GCC = gcc -std=c99 -g $(WARNING) $(ERROR) 
+GCC = gcc -std=c11 -g $(WARNING) $(ERROR) 
 
-TESTFALGS = -DDEBUG
+TESTFALGS = -DTEST_COUNTWORD # -DDEBUG
 
 SRCS = main.c
 OBJS = $(SRCS:%.c=%.o)
 
-A1: $(OBJS) 
-	$(GCC) $(TESTFALGS) $(OBJS) -o out
+a1: $(OBJS)
+	$(GCC) $(TESTFALGS) $(OBJS) -o a1
 
-.c.o: 
-	$(GCC) $(TESTFALGS) -c $*.c 
-
-lean: # remove all machine generated files
-	rm -f hw12 *.o output?
-
+clean: # remove all machine generated files
+	rm -f a1 *.o
