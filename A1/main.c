@@ -10,15 +10,15 @@
 
 int main(int argc, char ** argv)
 {
-    if(argc < 2) {
+    /*if(argc < 2) {
         printf("Too few arguments supplied\n");
         return 1;
-    }
+    }*/
 
     // read in the change to make
     int val;
-    //scanf("%d", &val); //artifact from my misinterpretation of "standard input" (see A1_updated.pdf)
-    val = atoi(argv[1]);
+    scanf("%d", &val);
+    //val = atoi(argv[1]);
     // count down from the maximum number of possible each coin (except pennies) and print
     for (int q=val/25;q>=0;q--)
         for(int d=(val-q*25)/10;d>=0;d--)
