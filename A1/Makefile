@@ -2,12 +2,11 @@
 
 WARNING = -Wall -Wshadow --pedantic
 ERROR = -Wvla -Werror
-GCC = gcc -std=c11 -g $(WARNING) $(ERROR) 
+GCC = gcc -std=c99 -g $(WARNING) $(ERROR) 
 
-TESTFALGS = -DTEST_COUNTWORD # -DDEBUG
+TESTFALGS = #-DTEST_COUNTWORD -DDEBUG
 
-SRCS = main.c
-OBJS = $(SRCS:%.c=%.o)
+OBJS = main.c
 
 a1: $(OBJS)
 	$(GCC) $(TESTFALGS) $(OBJS) -o a1
