@@ -6,11 +6,11 @@ GCC = gcc -std=c11 -g $(WARNING) $(ERROR)
 
 TESTFALGS = -DTEST_COUNTWORD # -DDEBUG
 
-SRCS = main.c
+SRCS = list.c main.c
 OBJS = $(SRCS:%.c=%.o)
 
-a1: $(OBJS)
-	$(GCC) $(TESTFALGS) $(OBJS) -o a1
+a4: $(OBJS)
+	$(GCC) $(TESTFALGS) $(OBJS) -o a4
 
 clean: # remove all machine generated files
-	rm -f a1 *.o
+	rm -f a4 *.o
