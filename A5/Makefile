@@ -6,7 +6,7 @@ GCC = gcc -std=c11 -g $(WARNING) $(ERROR)
 
 TESTFALGS = -DTEST_COUNTWORD # -DDEBUG
 
-SRCS = main.c
+SRCS = main.c tree.c
 OBJS = $(SRCS:%.c=%.o)
 
 a5: $(OBJS)

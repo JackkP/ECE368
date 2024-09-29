@@ -1,18 +1,20 @@
 /* 
  * Jack Porter, Purdue ECE368
  * Assignment 5 (see A5.pdf for details)
- *
+ * Using a quadtree to spatially divide points into rectangular spaces
+ * Rectangles with a known number of points are then classified
+ *  fully inside (counted)
+ *  fully outside (ignored)
+ *  partially inside (sub rectangles are then classified)
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "point.h"
+#include "tree.h"
 
-int getnpoints_n(point* head, int x, int y, int r);
-void printlist(point* head);
-void freelist(point* head);
 int32_t abs(int32_t x);
+void freelist(point* head);
 
 int main(int argc, char ** argv)
 {
@@ -22,8 +24,20 @@ int main(int argc, char ** argv)
     if (file == NULL) return 1;
     //read every line from the file into two integers into a linkedlist
     int x, y;
+
+    int maxX = INT32_MIN;
+    int maxY = INT32_MIN;
+    int minX = INT32_MAX;
+    int minY = INT32_MAX;
+    
+    printf("xxnn: %d, %d, %d, %d\n", maxX, maxY, minX, minY);
+
     point* head = NULL;
     while(2 == fscanf(file, "%d %d\n", &x, &y)){
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
+        if (x < minX) minX = x;
+        if (x < minY) minY = y;
         point* p = malloc(sizeof(point));
         p->x = x;
         p->y = y;
@@ -32,55 +46,21 @@ int main(int argc, char ** argv)
     }
     fclose(file);
 
-    //build a quad tree from the linked list
+    print(head);
+
+    //build a quad tree from the linked list ?
+    printf("xxnn: %d, %d, %d, %d\n", maxX, maxY, minX, minY);
+    node* root = buildtree(head, maxX, maxY, minX, minY);
+
+    printf("survived buildtree\n");
 
     int r;
-    while(scanf("%d %d %d", &x, &y, &r) == 3)
-        printf("%d\n", getnpoints_n(head, x, y, r));
-    freelist(head);
+    //while(scanf("%d %d %d", &x, &y, &r) == 3)
+        //printf("%d\n", getnpoints_n(head, x, y, r));
+        //printf("%d\n", getnpoints_t(root, x, y, r));
+    freetree(root);
+    printf("survived freetree\n");
     return 0;
-}
-
-// print number of points using brute force
-// using this to check grading scores/speed for
-// reference since it takes no time to write
-// (all testcases timed out)
-int getnpoints_n(point* head, const int x, const int y, const int r){
-    const int r2 = r*r;
-    const int insr = (int)(r*0.70710678118);
-    //printf("insr: %d\n", insr);
-    int count = 0;
-    while (head){
-        int xdist = abs(x-head->x);
-        int ydist = abs(y-head->y);
-        //printf("dists: %d, %d\n", xdist, ydist);
-        if (xdist <= insr && ydist <= insr || // accept anything inside of inscribed rectangle
-            (xdist <= r && ydist <= r && // reject anything that is outside of circumscribed rectangle
-            (x-head->x)*(x-head->x) + (y-head->y)*(y-head->y) <= r2)) {
-            //printf("added\n");
-            count++;
-        }
-        head = head->next;
-    }
-    return count;
-}
-
-//debug function to print a list of points
-void printlist(point* head){
-    while (head){
-        printf("%d, %d\n", head->x, head->y);
-        head = head->next;
-    }
-}
-
-//free the points in the list
-void freelist(point* head){
-    point* tmp;
-    while (head){
-        tmp = head->next;
-        free(head);
-        head = tmp;
-    }
 }
 
 //super fast absolute value function
