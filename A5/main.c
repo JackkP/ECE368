@@ -47,15 +47,19 @@ int main(int argc, char ** argv)
 // (all testcases timed out)
 int getnpoints_n(point* head, const int x, const int y, const int r){
     const int r2 = r*r;
-    const int insr = r*0.70710678118;
+    const int insr = (int)(r*0.70710678118);
+    //printf("insr: %d\n", insr);
     int count = 0;
     while (head){
         int xdist = abs(x-head->x);
         int ydist = abs(y-head->y);
-        if (xdist <= insr || ydist <= insr || // accept anything inside of inscribed rectangle
+        //printf("dists: %d, %d\n", xdist, ydist);
+        if (xdist <= insr && ydist <= insr || // accept anything inside of inscribed rectangle
             (xdist <= r && ydist <= r && // reject anything that is outside of circumscribed rectangle
-            (x-head->x)*(x-head->x) + (y-head->y)*(y-head->y) <= r2))
+            (x-head->x)*(x-head->x) + (y-head->y)*(y-head->y) <= r2)) {
+            //printf("added\n");
             count++;
+        }
         head = head->next;
     }
     return count;
@@ -79,6 +83,7 @@ void freelist(point* head){
     }
 }
 
+//super fast absolute value function
 int32_t abs(int32_t x) {
     int32_t mask = x >> 31; 
     return (x ^ mask) - mask;
