@@ -41,10 +41,11 @@ int main(int argc, char ** argv)
 // using this to check grading scores/speed for
 // reference since it takes no time to write
 // (all testcases timed out)
-int getnpoints_n(point* head, int x, int y, int r){
+int getnpoints_n(point* head, const int x, const int y, const int r){
+    const int r2 = r*r;
     int count = 0;
     while (head){
-        if ((x-head->x)*(y-head->y) + (y-head->y)*(y-head->y) <= r*r)
+        if ((x-head->x)*(x-head->x) + (y-head->y)*(y-head->y) <= r2)
             count++;
         head = head->next;
     }
