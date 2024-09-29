@@ -6,11 +6,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "point.h"
 
 int getnpoints_n(point* head, int x, int y, int r);
-void printlist(point* head);\
+void printlist(point* head);
 void freelist(point* head);
+int32_t abs(int32_t x);
 
 int main(int argc, char ** argv)
 {
@@ -45,9 +47,14 @@ int main(int argc, char ** argv)
 // (all testcases timed out)
 int getnpoints_n(point* head, const int x, const int y, const int r){
     const int r2 = r*r;
+    const int insr = r*0.70710678118;
     int count = 0;
     while (head){
-        if ((x-head->x)*(x-head->x) + (y-head->y)*(y-head->y) <= r2)
+        int xdist = abs(x-head->x);
+        int ydist = abs(y-head->y);
+        if (xdist <= insr || ydist <= insr || // accept anything inside of inscribed rectangle
+            (xdist <= r && ydist <= r && // reject anything that is outside of circumscribed rectangle
+            (x-head->x)*(x-head->x) + (y-head->y)*(y-head->y) <= r2))
             count++;
         head = head->next;
     }
@@ -70,4 +77,9 @@ void freelist(point* head){
         free(head);
         head = tmp;
     }
+}
+
+int32_t abs(int32_t x) {
+    int32_t mask = x >> 31; 
+    return (x ^ mask) - mask;
 }
