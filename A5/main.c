@@ -9,7 +9,8 @@
 #include "point.h"
 
 int getnpoints_n(point* head, int x, int y, int r);
-void printlist(point* head);
+void printlist(point* head);\
+void freelist(point* head);
 
 int main(int argc, char ** argv)
 {
@@ -32,8 +33,9 @@ int main(int argc, char ** argv)
     //build a quad tree from the linked list
 
     int r;
-    while(3 == scanf("%d %d %d", &x, &y, &r))
+    while(scanf("%d %d %d", &x, &y, &r) == 3)
         printf("%d\n", getnpoints_n(head, x, y, r));
+    freelist(head);
     return 0;
 }
 
@@ -57,5 +59,15 @@ void printlist(point* head){
     while (head){
         printf("%d, %d\n", head->x, head->y);
         head = head->next;
+    }
+}
+
+//free the points in the list
+void freelist(point* head){
+    point* tmp;
+    while (head){
+        tmp = head->next;
+        free(head);
+        head = tmp;
     }
 }
