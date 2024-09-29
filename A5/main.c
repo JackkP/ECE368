@@ -31,16 +31,15 @@ int main(int argc, char ** argv)
     fclose(file);
 
     int r;
-    while(1) {
-        scanf("%d %d %d", &x, &y, &r);
+    while(3 == scanf("%d %d %d", &x, &y, &r))
         printf("%d\n", getnpoints_n(head, x, y, r));
-    }
     return 0;
 }
 
 // print number of points using brute force
 // using this to check grading scores/speed for
 // reference since it takes no time to write
+// (all testcases timed out)
 int getnpoints_n(point* head, int x, int y, int r){
     int count = 0;
     while (head){
