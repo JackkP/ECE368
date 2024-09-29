@@ -6,7 +6,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include "point.h"
 
 int getnpoints_n(point* head, int x, int y, int r);
@@ -30,6 +29,8 @@ int main(int argc, char ** argv)
     }
     fclose(file);
 
+    //build a quad tree from the linked list
+
     int r;
     while(3 == scanf("%d %d %d", &x, &y, &r))
         printf("%d\n", getnpoints_n(head, x, y, r));
@@ -43,7 +44,7 @@ int main(int argc, char ** argv)
 int getnpoints_n(point* head, int x, int y, int r){
     int count = 0;
     while (head){
-        if (sqrt((x-head->x)*(y-head->y) + (y-head->y)*(y-head->y)) < r)
+        if ((x-head->x)*(y-head->y) + (y-head->y)*(y-head->y) <= r*r)
             count++;
         head = head->next;
     }
