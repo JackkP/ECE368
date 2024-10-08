@@ -11,10 +11,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+//#include <sys/time.h>
 #include "tree.h"
 
-int32_t abs(int32_t x);
-void freelist(point* head);
 
 int main(int argc, char ** argv)
 {
@@ -30,7 +29,7 @@ int main(int argc, char ** argv)
     int minX = INT32_MAX;
     int minY = INT32_MAX;
     
-    printf("xxnn: %d, %d, %d, %d\n", maxX, maxY, minX, minY);
+    //printf("xxnn: %d, %d, %d, %d\n", maxX, maxY, minX, minY);
 
     point* head = NULL;
     while(2 == fscanf(file, "%d %d\n", &x, &y)){
@@ -46,25 +45,29 @@ int main(int argc, char ** argv)
     }
     fclose(file);
 
-    print(head);
+    //print(head);
 
     //build a quad tree from the linked list ?
-    printf("xxnn: %d, %d, %d, %d\n", maxX, maxY, minX, minY);
+    //printf("xxnn: %d, %d, %d, %d\n", maxX, maxY, minX, minY);
+
+    //struct timeval stop, start;
+
+    //gettimeofday(&start, NULL);
     node* root = buildtree(head, maxX, maxY, minX, minY);
+    //gettimeofday(&stop, NULL);
+    //printf("buildtree took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
+    
 
-    printf("survived buildtree\n");
-
+    //printf("survived buildtree\n");
     int r;
-    //while(scanf("%d %d %d", &x, &y, &r) == 3)
+    while(scanf("%d %d %d", &x, &y, &r) == 3) {
+        //gettimeofday(&start, NULL);
         //printf("%d\n", getnpoints_n(head, x, y, r));
-        //printf("%d\n", getnpoints_t(root, x, y, r));
-    freetree(root);
-    printf("survived freetree\n");
+        printf("%d\n", getnpoints_t(root, x, y, r));
+        //gettimeofday(&stop, NULL);
+        //printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
+    }
+    //freetree(root);
+    freelist(head);
     return 0;
-}
-
-//super fast absolute value function
-int32_t abs(int32_t x) {
-    int32_t mask = x >> 31; 
-    return (x ^ mask) - mask;
 }
