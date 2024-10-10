@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-//#include <sys/time.h>
+#include <sys/time.h>
 #include "tree.h"
 
 
@@ -50,10 +50,10 @@ int main(int argc, char ** argv)
     //build a quad tree from the linked list ?
     //printf("xxnn: %d, %d, %d, %d\n", maxX, maxY, minX, minY);
 
-    //struct timeval stop, start;
+    struct timeval stop, start;
 
     //gettimeofday(&start, NULL);
-    node* root = buildtree(head, maxX, maxY, minX, minY);
+    //node* root = buildtree(head, maxX, maxY, minX, minY);
     //gettimeofday(&stop, NULL);
     //printf("buildtree took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
     
@@ -61,13 +61,13 @@ int main(int argc, char ** argv)
     //printf("survived buildtree\n");
     int r;
     while(scanf("%d %d %d", &x, &y, &r) == 3) {
-        //gettimeofday(&start, NULL);
-        //printf("%d\n", getnpoints_n(head, x, y, r));
-        printf("%d\n", getnpoints_t(root, x, y, r));
-        //gettimeofday(&stop, NULL);
-        //printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
+        gettimeofday(&start, NULL);
+        printf("%d\n", getnpoints_n(head, x, y, r));
+        //printf("%d\n", getnpoints_t(root, x, y, r));
+        gettimeofday(&stop, NULL);
+        printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
     }
-    freetree(root);
-    //freelist(head);
+    //freetree(root);
+    freelist(head);
     return 0;
 }

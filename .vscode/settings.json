@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "chrono": "c",
+        "complex": "c",
+        "stdlib.h": "c",
+        "stdio.h": "c",
+        "tree.h": "c",
+        "stdint.h": "c"
+    }
+}
