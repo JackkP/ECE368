@@ -1,0 +1,18 @@
+1 1 5
+20
+took 14 us
+2 13 3
+0
+took 16 us
+2 10 30
+100
+took 11 us
+4 4 2
+2
+took 18 us
+8 7 3
+7
+took 12 us
+-3 -3 4
+11
+took 13 us
