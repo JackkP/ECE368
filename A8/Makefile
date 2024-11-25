@@ -6,7 +6,7 @@ GCC = gcc -std=c11 -g $(WARNING) $(ERROR)
 
 SRC = main.c
 
-a1: $(SRC)
+a8: $(SRC)
 	$(GCC) $(SRC) -o a8
 
 clean: # remove all machine generated files
