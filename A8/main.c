@@ -1,6 +1,6 @@
 /* 
  * Jack Porter, Purdue ECE368
- * Assignment 1
+ * Assignment 8
  *
  */
 
@@ -10,21 +10,27 @@
 
 #define INF INT_MAX
 
+// edge struct
 typedef struct {
-    int target;
+    int target;    // destination vertex
     int *weights;  // Array of weights for this edge
 } Edge;
 
+// vertex struct
 typedef struct {
-    Edge **edges;  // Array of pointers to edges
-    int edge_count;
+    Edge **edges;   // Array of pointers to edges
+    int edge_count; // number of edges
 } Vertex;
 
+
+// using a min heap to for dijkstra's algorithm
+// heap node struct
 typedef struct {
     int vertex;
     int weight;
 } HeapNode;
 
+// minheap struct
 typedef struct {
     HeapNode *nodes;
     int size;
@@ -39,6 +45,16 @@ HeapNode extractMin(MinHeap *heap);
 void decreaseKey(MinHeap *heap, int v, int weight);
 int isInMinHeap(MinHeap *heap, int v);
 
+int isInMinHeap(MinHeap *heap, int v) {
+    return heap->positions[v] < heap->size;
+}
+
+void printHeap(MinHeap *heap) {
+    for (int i=0; i<heap->size; i++){
+        printf("%d, in pos %d, weight %d\n", heap->nodes[i].vertex, heap->positions[heap->nodes[i].vertex], heap->nodes[i].weight);
+    }
+}
+
 // Function to parse the graph from the input file
 Vertex *parseGraph(const char *filename, int *V, int *N) {
     FILE *file = fopen(filename, "r");
@@ -47,25 +63,33 @@ Vertex *parseGraph(const char *filename, int *V, int *N) {
         exit(EXIT_FAILURE);
     }
 
+    //scan in number of verticies and depth of edge weights
     fscanf(file, "%d %d", V, N);
 
+    //create an array of verticies
     Vertex *graph = (Vertex *)malloc((*V) * sizeof(Vertex));
     for (int i = 0; i < *V; ++i) {
         graph[i].edges = NULL;
         graph[i].edge_count = 0;
     }
 
+    //source vertex and target vertex for each edge
     int vs, vt;
+
+    //for every set of verticies
     while (fscanf(file, "%d %d", &vs, &vt) == 2) {
+        //add a new edge to the array of edges for that node
         graph[vs].edges = (Edge **)realloc(graph[vs].edges, (graph[vs].edge_count + 1) * sizeof(Edge *));
         Edge *edge = (Edge *)malloc(sizeof(Edge));
         edge->target = vt;
         edge->weights = (int *)malloc((*N) * sizeof(int));
 
+        //read the edges in
         for (int i = 0; i < *N; ++i) {
             fscanf(file, "%d", &edge->weights[i]);
         }
 
+        //increment edge count and add new edge to array
         graph[vs].edges[graph[vs].edge_count++] = edge;
     }
 
@@ -75,68 +99,104 @@ Vertex *parseGraph(const char *filename, int *V, int *N) {
 
 // Function to find the shortest path using Dijkstra's algorithm
 void dijkstra(Vertex *graph, int V, int N, int start, int end) {
-    int *dist = (int *)malloc(V * sizeof(int));
-    int *prev = (int *)malloc(V * sizeof(int));
-    MinHeap *heap = createMinHeap(V);
-
+    // Distance array: dist[node][time]
+    int **dist = (int **)malloc(V * sizeof(int *));
     for (int i = 0; i < V; ++i) {
-        dist[i] = INF;
-        prev[i] = -1;
-        insertHeap(heap, i, INF);
+        dist[i] = (int *)malloc(N * sizeof(int));
+        for (int j = 0; j < N; ++j)
+            dist[i][j] = INF;
     }
 
-    dist[start] = 0;
-    decreaseKey(heap, start, 0);
+    // Priority queue for (node, time, distance)
+    MinHeap *heap = createMinHeap(V * N);
+
+    // Initialize start node at time 0
+    dist[start][0] = 0;
+    insertHeap(heap, start * N + 0, 0);  // Encode (node, time) as a single integer
+
+    // Previous array to reconstruct the path
+    int **prev_node = (int **)malloc(V * sizeof(int *));
+    int **prev_time = (int **)malloc(V * sizeof(int *));
+    for (int i = 0; i < V; ++i) {
+        prev_node[i] = (int *)malloc(N * sizeof(int));
+        prev_time[i] = (int *)malloc(N * sizeof(int));
+        for (int j = 0; j < N; ++j) {
+            prev_node[i][j] = -1;
+            prev_time[i][j] = -1;
+        }
+    }
 
     while (heap->size > 0) {
+        // Extract the state with the minimum distance
         HeapNode node = extractMin(heap);
-        int u = node.vertex;
+        int u = node.vertex / N;  // Decode node
+        int time = node.vertex % N;  // Decode time
 
-        if (u == end) break;
+        // If we reached the target node, reconstruct and print the path
+        if (u == end) {
+            int current = end, current_time = time;
+            int *path = malloc(sizeof(int) * V * N);
+            int path_length = 0;
 
+            while (current != -1) {
+                path[path_length++] = current;
+                int temp = prev_node[current][current_time];
+                current_time = prev_time[current][current_time];
+                current = temp;
+            }
+
+            for (int i = path_length - 1; i >= 0; --i) {
+                printf("%d", path[i]);
+                if (i > 0) printf(" ");
+            }
+            printf("\n");
+
+            free(path);
+            break;
+        }
+
+        // Relaxation for all neighbors
         for (int i = 0; i < graph[u].edge_count; ++i) {
             Edge *edge = graph[u].edges[i];
             int v = edge->target;
-            int weight = edge->weights[dist[u] % N];  // Time-dependent weight
+            int next_time = (time + 1) % N;
+            int weight = edge->weights[time];
+            int new_dist = dist[u][time] + weight;
 
-            if (dist[u] != INF && dist[u] + weight < dist[v]) {
-                dist[v] = dist[u] + weight;
-                prev[v] = u;
-                decreaseKey(heap, v, dist[v]);
+            if (new_dist < dist[v][next_time]) {
+                dist[v][next_time] = new_dist;
+                prev_node[v][next_time] = u;
+                prev_time[v][next_time] = time;
+
+                if (isInMinHeap(heap, v * N + next_time))
+                    decreaseKey(heap, v * N + next_time, new_dist);
+                else
+                    insertHeap(heap, v * N + next_time, new_dist);
             }
         }
     }
 
-    // Output the shortest path
-    if (dist[end] == INF) {
-        printf("No path\n");
-    } else {
-        int current = end;
-        int* path = malloc(sizeof(int) * V);
-        int path_length = 0;
-
-        while (current != -1) {
-            path[path_length++] = current;
-            current = prev[current];
-        }
-
-        for (int i = path_length - 1; i >= 0; --i) {
-            printf("%d", path[i]);
-            if (i > 0) printf(" ");
-        }
-        printf("\n");
-        free(path);
+    // Free memory
+    for (int i = 0; i < V; ++i) {
+        free(dist[i]);
+        free(prev_node[i]);
+        free(prev_time[i]);
     }
-
     free(dist);
-    free(prev);
+    free(prev_node);
+    free(prev_time);
     free(heap->nodes);
     free(heap->positions);
     free(heap);
 }
 
-// MinHeap utility functions
+// MinHeap utility function to create heap
 MinHeap *createMinHeap(int capacity) {
+    // MinHeap stores
+    //      an array of HeapNodes
+    //      size of the heap
+    //      positions of each vertex
+            
     MinHeap *heap = (MinHeap *)malloc(sizeof(MinHeap));
     heap->nodes = (HeapNode *)malloc(capacity * sizeof(HeapNode));
     heap->positions = (int *)malloc(capacity * sizeof(int));
@@ -145,9 +205,10 @@ MinHeap *createMinHeap(int capacity) {
     return heap;
 }
 
+// MinHeap utility function to insert a node into the heap
 void insertHeap(MinHeap *heap, int v, int weight) {
+    //heap overflow
     if (heap->size == heap->capacity) {
-        fprintf(stderr, "Heap overflow\n");
         return;
     }
 
@@ -218,7 +279,9 @@ HeapNode extractMin(MinHeap *heap) {
     return root;
 }
 
+// decreases the distance to a node in the heap and adjusts its position accordingly
 void decreaseKey(MinHeap *heap, int v, int weight) {
+    //printf("decreasing key %d in pos %d with weight %d to %d\n", v, heap->positions[v], heap->nodes[heap->positions[v]].weight, weight);
     int i = heap->positions[v];
     heap->nodes[i].weight = weight;
 
@@ -234,19 +297,17 @@ void decreaseKey(MinHeap *heap, int v, int weight) {
     }
 }
 
-int isInMinHeap(MinHeap *heap, int v) {
-    return heap->positions[v] < heap->size;
-}
-
 // Main function
 int main(int argc, char *argv[]) {
+    //check to make sure that a filename is provided
     if (argc != 2) {
-        fprintf(stderr, "Usage: %s <graph_file>\n", argv[0]);
         return EXIT_FAILURE;
     }
 
+    //read the graph (as well as number of verticies and edge depth) in from the file
     int V, N;
     Vertex *graph = parseGraph(argv[1], &V, &N);
+    //printf("graph parsed\n");
 
     int start, end;
     while (scanf("%d %d", &start, &end) == 2) {
