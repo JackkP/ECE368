@@ -46,6 +46,8 @@ void decreaseKey(MinHeap *heap, int v, int weight);
 int isInMinHeap(MinHeap *heap, int v);
 
 int isInMinHeap(MinHeap *heap, int v) {
+    //printf("Vertex %d (positions[%d] = %d, heap size = %d)\n", 
+    //            v, v, heap->positions[v], heap->size);
     return heap->positions[v] < heap->size;
 }
 
@@ -128,10 +130,12 @@ void dijkstra(Vertex *graph, int V, int N, int start, int end) {
 
     while (heap->size > 0) {
         // Extract the state with the minimum distance
+        //printf("minheap size is %d\n", heap->size);
         HeapNode node = extractMin(heap);
+        //printf("minheap size is %d\n", heap->size);
         int u = node.vertex / N;  // Decode node
         int time = node.vertex % N;  // Decode time
-        printf("examining node %d, t %d\n", u, time);
+        //printf("examining node %d, t %d\n", u, time);
 
         // If we reached the target node, reconstruct and print the path
         if (u == end) {
@@ -150,7 +154,7 @@ void dijkstra(Vertex *graph, int V, int N, int start, int end) {
                 printf("%d", path[i]);
                 if (i > 0) printf(" ");
             }
-            printf("l\n");
+            printf("\n");
 
             free(path);
             break;
@@ -160,24 +164,29 @@ void dijkstra(Vertex *graph, int V, int N, int start, int end) {
         for (int i = 0; i < graph[u].edge_count; ++i) {
             Edge *edge = graph[u].edges[i];
             int v = edge->target;
-            printf("adding edge from %d to %d\n", u, edge->target);
+            //printf("adding edge from %d to %d\n", u, edge->target);
             int next_time = (time + 1) % N;
+            //printf("next time is %d\n", next_time);
             int weight = edge->weights[time];
             int new_dist = dist[u][time] + weight;
 
             if (new_dist < dist[v][next_time]) {
-                printf("actually enqueued %d\n", v);
+                //printf("actually enqueued %d\n", v);
                 dist[v][next_time] = new_dist;
                 prev_node[v][next_time] = u;
                 prev_time[v][next_time] = time;
 
-                if (isInMinHeap(heap, v * N + next_time))
+                if (isInMinHeap(heap, v * N + next_time)) {
+                    //printf("decreasing key with index %d\n", v*N+next_time);
                     decreaseKey(heap, v * N + next_time, new_dist);
-                else
+                }
+                else {
+                    //printf("inserting into minheap with index %d\n", v*N+next_time);
                     insertHeap(heap, v * N + next_time, new_dist);
+                }
             }
+            //printf("minheap size is %d\n", heap->size);
         }
-        printf("minheap size is %d\n", heap->size);
     }
 
     // Free memory
@@ -204,6 +213,8 @@ MinHeap *createMinHeap(int capacity) {
     MinHeap *heap = (MinHeap *)malloc(sizeof(MinHeap));
     heap->nodes = (HeapNode *)malloc(capacity * sizeof(HeapNode));
     heap->positions = (int *)malloc(capacity * sizeof(int));
+    //set all positions to INF
+    for (int i=0; i<capacity;i++) heap->positions[i] = INF;
     heap->size = 0;
     heap->capacity = capacity;
     return heap;
@@ -311,7 +322,7 @@ int main(int argc, char *argv[]) {
     //read the graph (as well as number of verticies and edge depth) in from the file
     int V, N;
     Vertex *graph = parseGraph(argv[1], &V, &N);
-    printf("graph parsed\n");
+    //printf("graph parsed\n");
 
     int start, end;
     while (scanf("%d %d", &start, &end) == 2) {
