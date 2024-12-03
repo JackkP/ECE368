@@ -131,6 +131,7 @@ void dijkstra(Vertex *graph, int V, int N, int start, int end) {
         HeapNode node = extractMin(heap);
         int u = node.vertex / N;  // Decode node
         int time = node.vertex % N;  // Decode time
+        printf("examining node %d, t %d\n", u, time);
 
         // If we reached the target node, reconstruct and print the path
         if (u == end) {
@@ -149,7 +150,7 @@ void dijkstra(Vertex *graph, int V, int N, int start, int end) {
                 printf("%d", path[i]);
                 if (i > 0) printf(" ");
             }
-            printf("\n");
+            printf("l\n");
 
             free(path);
             break;
@@ -159,11 +160,13 @@ void dijkstra(Vertex *graph, int V, int N, int start, int end) {
         for (int i = 0; i < graph[u].edge_count; ++i) {
             Edge *edge = graph[u].edges[i];
             int v = edge->target;
+            printf("adding edge from %d to %d\n", u, edge->target);
             int next_time = (time + 1) % N;
             int weight = edge->weights[time];
             int new_dist = dist[u][time] + weight;
 
             if (new_dist < dist[v][next_time]) {
+                printf("actually enqueued %d\n", v);
                 dist[v][next_time] = new_dist;
                 prev_node[v][next_time] = u;
                 prev_time[v][next_time] = time;
@@ -174,6 +177,7 @@ void dijkstra(Vertex *graph, int V, int N, int start, int end) {
                     insertHeap(heap, v * N + next_time, new_dist);
             }
         }
+        printf("minheap size is %d\n", heap->size);
     }
 
     // Free memory
@@ -307,7 +311,7 @@ int main(int argc, char *argv[]) {
     //read the graph (as well as number of verticies and edge depth) in from the file
     int V, N;
     Vertex *graph = parseGraph(argv[1], &V, &N);
-    //printf("graph parsed\n");
+    printf("graph parsed\n");
 
     int start, end;
     while (scanf("%d %d", &start, &end) == 2) {
